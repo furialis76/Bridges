@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Bridges.CreateGame"
+             Title="Create Game">
+    
+    <ScrollView>
+        <VerticalStackLayout Padding="5">
+            <VerticalStackLayout>
+                <RadioButton x:Name="Automatic" Content="Automatic Size and Island Count" IsChecked="True" />
+                <RadioButton x:Name="Manual" Grid.Row="1" Content="Set Size and / or Island Count" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout
+                x:Name="Form"
+                Spacing="10"
+                BindingContext="{x:Reference Name=Manual}"
+                IsVisible="{Binding Path=IsChecked}"
+                Margin="0,20,0,0">
+                <HorizontalStackLayout>
+                    <Label Text="Width:" VerticalOptions="Center" WidthRequest="70" />
+                    <Entry x:Name="Width" WidthRequest="250" Placeholder="Number from 4 to 25" TextChanged="Dimensions_Changed" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout>
+                    <Label Text="Height:" VerticalOptions="Center" WidthRequest="70"/>
+                    <Entry x:Name="Height" WidthRequest="250" Placeholder="Number from 4 to 25" TextChanged="Dimensions_Changed" />
+                </HorizontalStackLayout>
+                <Label x:Name="DimensionAlert" TextColor="Red" />
+                <HorizontalStackLayout>
+                    <CheckBox x:Name="ManualIslandCount" IsChecked="True" />
+                    <Label Text="Set Island Count" VerticalOptions="Center" />
+                </HorizontalStackLayout>
+                <HorizontalStackLayout
+                    BindingContext="{x:Reference Name=ManualIslandCount}"
+                    IsVisible="{Binding Path=IsChecked}">
+                    <Label Text="Islands:" VerticalOptions="Center" WidthRequest="70" />
+                    <Entry x:Name="Islands" WidthRequest="250" IsEnabled="False" TextChanged="Islands_Changed" />
+                </HorizontalStackLayout>
+                <Label
+                    x:Name="IslandsAlert"
+                    TextColor="Red"
+                    BindingContext="{x:Reference Name=ManualIslandCount}"
+                    IsVisible="{Binding Path=IsChecked}" />
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="5" Margin="0,50,0,0">
+                <Button Text="Cancel" Clicked="Cancel_Clicked" />
+                <Button Grid.Column="1" Text="OK" Clicked="OK_Clicked" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+
+
+</ContentPage>

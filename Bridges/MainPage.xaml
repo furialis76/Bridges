@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Bridges.MainPage">
+
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="File">
+            <MenuFlyoutItem Text="Create Game" Clicked="CreateGame_Clicked" />
+            <MenuFlyoutItem Text="Save Game" Clicked="SaveGame_Clicked" />
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
+
+    <Grid Padding="5" RowDefinitions="*,Auto,Auto,Auto" ColumnDefinitions="*,*" ColumnSpacing="5">
+        <GraphicsView x:Name="GraphicsView" Grid.ColumnSpan="2">
+            <GraphicsView.GestureRecognizers>
+                <TapGestureRecognizer Tapped="GraphicsView_Left" Buttons="Primary" />
+                <TapGestureRecognizer Tapped="GraphicsView_Right" Buttons="Secondary" />
+            </GraphicsView.GestureRecognizers>
+        </GraphicsView>
+        <HorizontalStackLayout Grid.Row="1" Grid.ColumnSpan="2">
+            <CheckBox x:Name="ShowMissing" CheckedChanged="ShowMissing_CheckedChanged" IsChecked="False" />
+            <Label Text="Show missing bridges" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+        <Button Text="Auto Solve" Grid.Row="2" Clicked="AutoSolve_Clicked" />
+        <Button Text="Next Bridge" Grid.Row="2" Grid.Column="1" Clicked="NextBridge_Clicked" />
+        <Label Text="{Binding GameStatus}" Grid.Row="3" Grid.ColumnSpan="2" Margin="5" />
+    </Grid>
+
+</ContentPage>
