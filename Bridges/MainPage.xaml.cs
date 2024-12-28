@@ -1,4 +1,5 @@
-﻿using Bridges.Models;
+﻿using Bridges.Drawables;
+using Bridges.Models;
 using System.Diagnostics;
 using System.Timers;
 
@@ -7,19 +8,25 @@ namespace Bridges
     public partial class MainPage : ContentPage
     {
         private GameManager _gameManager;
+        private Field _field;
         private CreateGame _createGame;
         private SharedData _sharedData;
         private System.Timers.Timer _timer;
 
-        public MainPage(GameManager gameManager, CreateGame createGame, SharedData sharedData)
+        public MainPage(GameManager gameManager, Field field, CreateGame createGame, SharedData sharedData)
         {
             InitializeComponent();
             BindingContext = sharedData;
+            GraphicsView.Drawable = field;
+
             _gameManager = gameManager;
-            _gameManager.GraphicsView = GraphicsView;
+            _field = field;
             _createGame = createGame;
             _sharedData = sharedData;
+
+            _gameManager.GraphicsView = GraphicsView;
             _sharedData.ShowMissing = ShowMissing.IsChecked;
+
             _timer = new System.Timers.Timer(1000);
             _timer.Elapsed += NextBridge_Clicked;
         }
@@ -29,9 +36,20 @@ namespace Bridges
             await Navigation.PushAsync(_createGame);
         }
 
+        private async void LoadGame_Clicked(object sender, EventArgs e)
+        {
+            var answer = await _gameManager.LoadGame();
+            if (answer != "OK") await DisplayAlert("Information", answer, "OK");
+        }
+
         private async void SaveGame_Clicked(object sender, EventArgs e)
         {
             if (await _gameManager.SaveGame()) await DisplayAlert("Information", "Game saved!", "OK");
+        }
+
+        private void ResetGame_Clicked(object sender, EventArgs e)
+        {
+            _gameManager.RemoveAllBridges();
         }
 
         private void GraphicsView_Left(object sender, TappedEventArgs e)

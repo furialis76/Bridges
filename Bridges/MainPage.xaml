@@ -6,7 +6,9 @@
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="Create Game" Clicked="CreateGame_Clicked" />
+            <MenuFlyoutItem Text="Load Game" Clicked="LoadGame_Clicked" />
             <MenuFlyoutItem Text="Save Game" Clicked="SaveGame_Clicked" />
+            <MenuFlyoutItem Text="Reset Game" Clicked="ResetGame_Clicked" />
         </MenuBarItem>
     </ContentPage.MenuBarItems>
 

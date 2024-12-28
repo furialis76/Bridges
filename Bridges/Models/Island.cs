@@ -1,6 +1,6 @@
 ﻿namespace Bridges.Models
 {
-    internal class Island : IComparable<Island>
+    public class Island : IComparable<Island>
     {
         public int Column {  get; }
         public int Row { get; }

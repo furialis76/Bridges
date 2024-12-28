@@ -7,7 +7,10 @@ namespace Bridges.Models
     {
         private string _gameStatus = "";
         private bool _showMissing = false;
-        private (int, int) _dimensions = (0, 0);
+        private (int, int, int, int) _dimensions = (-1, -1, -1, -1);
+
+        public List<Island> Islands { get; } = new List<Island>();
+        public List<Bridge> Bridges { get; } = new List<Bridge>();
 
         public string GameStatus
         {
@@ -29,12 +32,20 @@ namespace Bridges.Models
             }
         }
 
-        public (int, int) Dimensions
+        public (int, int, int, int) GetDimensions
         {
-            get { return _dimensions; }
+            get
+            {
+                return _dimensions;
+            }
+        }
+
+        public (int, int, int) SetDimensions
+        {
             set
             {
-                _dimensions = value;
+                if (value.Item1 <= 0 ||  value.Item2 <= 0 || value.Item3 <= 0) _dimensions = (-1, -1, -1, -1);
+                else _dimensions = (value.Item1, value.Item2, value.Item3, value.Item1 * value.Item2 / value.Item3);
                 OnPropertyChanged();
             }
         }

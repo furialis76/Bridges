@@ -1,6 +1,6 @@
 ﻿namespace Bridges.Models
 {
-    internal class Bridge : IComparable<Bridge>
+    public class Bridge : IComparable<Bridge>
     {
         public int StartIndex { get; set; }
         public int EndIndex { get; set; }

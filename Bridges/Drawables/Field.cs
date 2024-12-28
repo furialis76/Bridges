@@ -3,10 +3,8 @@ using System.ComponentModel;
 
 namespace Bridges.Drawables
 {
-    internal class Field : IDrawable
+    public class Field : IDrawable
     {
-        private List<Island> _islands;
-        private List<Bridge> _bridges;
         private SharedData _sharedData;
 
         private float _fieldWidth;
@@ -27,10 +25,8 @@ namespace Bridges.Drawables
 
         public Bridge? LastBridge { get; set; }
 
-        public Field(List<Island> islands, List<Bridge> bridges, SharedData sharedData)
+        public Field(SharedData sharedData)
         {
-            _islands = islands;
-            _bridges = bridges;
             _sharedData = sharedData;
             _sharedData.PropertyChanged += OnDimensionsChanged;
         }
@@ -50,16 +46,16 @@ namespace Bridges.Drawables
             canvas.FillColor = Colors.White;
             canvas.FillRoundedRectangle(dirtyRect, 5);
 
-            if (_islands.Count > 0 && _radius > 0)
+            if (_sharedData.Islands.Count > 0 && _boxSize > 0)
             {
-                foreach (var bridge in _bridges)
+                foreach (var bridge in _sharedData.Bridges)
                 {
                     if (bridge == LastBridge) canvas.StrokeSize = 2;
                     else canvas.StrokeSize = 1;
 
                     // Determine the coordinates of the bridge
-                    var startIsland = _islands[bridge.StartIndex];
-                    var endIsland = _islands[bridge.EndIndex];
+                    var startIsland = _sharedData.Islands[bridge.StartIndex];
+                    var endIsland = _sharedData.Islands[bridge.EndIndex];
                     var (a, b) = Center(startIsland.Column, startIsland.Row);
                     var (x, y) = Center(endIsland.Column, endIsland.Row);
                     var doubleBridgeSpace = _radius / 4;
@@ -90,7 +86,7 @@ namespace Bridges.Drawables
                 canvas.StrokeSize = 1;
                 canvas.FontSize = _radius > 20 ? 15 : 10;
 
-                foreach (var island in _islands)
+                foreach (var island in _sharedData.Islands)
                 {
 
                     // Determine the coordinates of the island
@@ -111,18 +107,18 @@ namespace Bridges.Drawables
             }
         }
 
-        public void OnDimensionsChanged(object? sender, PropertyChangedEventArgs e)
+        private void OnDimensionsChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == "Dimensions") _initialized = true;
+            if (e.PropertyName == "SetDimensions") _initialized = true;
         }
 
-        public void UpdateDimensions()
+        private void UpdateDimensions()
         {
-            _columnWidth = _fieldWidth / _sharedData.Dimensions.Item1;
-            _rowHeight = _fieldHeight / _sharedData.Dimensions.Item2;
+            _columnWidth = _fieldWidth / _sharedData.GetDimensions.Item1;
+            _rowHeight = _fieldHeight / _sharedData.GetDimensions.Item2;
             _boxSize = Math.Min(_rowHeight, _columnWidth);
-            _paddingX = (_fieldWidth - _boxSize * _sharedData.Dimensions.Item1) / 2;
-            _paddingY = (_fieldHeight - _boxSize * _sharedData.Dimensions.Item2) / 2;
+            _paddingX = (_fieldWidth - _boxSize * _sharedData.GetDimensions.Item1) / 2;
+            _paddingY = (_fieldHeight - _boxSize * _sharedData.GetDimensions.Item2) / 2;
             _startX = _paddingX + 1;
             _endX = _fieldWidth - _paddingX;
             _startY = _paddingY + 1;
@@ -136,7 +132,7 @@ namespace Bridges.Drawables
         {
             float x = -1;
             float y = -1;
-            if (column >= 0 && column < _sharedData.Dimensions.Item1 && row >= 0 && row < _sharedData.Dimensions.Item2)
+            if (column >= 0 && column < _sharedData.GetDimensions.Item1 && row >= 0 && row < _sharedData.GetDimensions.Item2)
             {
                 x = _topLeftX + column * _boxSize;
                 y = _topLeftY + row * _boxSize;
