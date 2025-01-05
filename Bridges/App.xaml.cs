@@ -1,6 +1,4 @@
-﻿using Bridges.Models;
-
-namespace Bridges
+﻿namespace Bridges
 {
     public partial class App : Application
     {
