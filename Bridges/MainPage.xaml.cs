@@ -1,7 +1,5 @@
 ﻿using Bridges.Drawables;
 using Bridges.Models;
-using System.Diagnostics;
-using System.Timers;
 
 namespace Bridges
 {
