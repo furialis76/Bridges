@@ -1,4 +1,6 @@
 # Bridges
+
+## Overview
 Hashiwokakero or Bridges is a logic puzzle originating in Japan.
 
 The programming of the game in Java was our task while studying computer science at the FernUniversität in Hagen.
@@ -28,6 +30,32 @@ Subtasks that were implemented in this case:
 A bridge must always have a minimum length of 2. Additionally i have resticted the max length to field-width * field-height / island-count.
 Otherwise in bigger fields with many islands the game creation process will run into problems because there will not be enough space to accommodate all the islands and their connections.
 
-Comments on the different classes will be added soon!
+![Alt Text](Bridges/Resources/Images/bridges.png)
 
-![Alt Text](Bridges/Resources/Images/Bridges.png)
+## Classes
+
+### Island and Bridge
+Representation of Islands and Bridges including specific data.
+
+### SharedData (DI: Singleton)
+This class contains a few important properties about the game status that are required in different other classes.
+Part of these properties are the Dimensions of the game as a four-tuple of width, heigth, island-count and max-length of the bridges.
+Therefore INotifyPropertyChanged is implemented as well.
+
+### Field (DI: Singleton)
+Implements IDrawable for drawing the islands and bridges into the GraphicsView.
+To be able to draw those elements properly on game-content and window-size changes the class has sometimes to recalculate the grid-dimensions accordingly.
+The class offers a public method to get the center coordinate of a square in the field and a method to get the square of a coordinate.
+These methods are required for click-processing inside the GameManager class.
+
+### GameManager (DI: Singleton)
+The GameManager contains all methods to create, load and save games and to process user actions. Therefore a lot of helper methods are included as well.
+There are additional comments on top of each method in the class. The GameManager receives the GraphicsView object from the Mainpage to trigger redrawing.
+
+### MainPage
+The MainPage contains the whole game content and ties together the things that are not done by dependency injection.
+It assigns the Field singleton to the GraphicsView and the GraphicsView to a property in the GameManager.
+And it invokes methods in the GameManager on basis of user actions in the views.
+
+### CreateGame
+CreateGame is the second page. It is a create game dialog with methods to check the user input for valid values.

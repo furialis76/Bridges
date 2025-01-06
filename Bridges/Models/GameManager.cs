@@ -21,6 +21,9 @@ namespace Bridges.Models
             CheckGameStatus();
         }
 
+        // The method first collects information on the click location (which island is affected).
+        // Then the direction of the click is determined. If there is an adjacent island, a bridge is added (left click) or removed (right click).
+        // Further checks for these actions are done in the invoked methods.
         public void ProcessClick(double xClick, double yClick, string button)
         {
             if (_sharedData.Islands.Count > 0)
@@ -52,6 +55,14 @@ namespace Bridges.Models
             }
         }
 
+        // The method first checks if game dimensions are provided by the user and otherwise creates random dimensions and adds them to the SharedData.
+        // After a first random island has been placed in the field, a loop runs until the target number of islands (and their bridge connections) has been reached.
+        // The loop selects a random islands from the already existing islands and a random direction.
+        // Then it checks how much space is available in that direction until the field border or the next neighbor island.
+        // Then a random distance in this range is selected. If it hits a neighbor, a bridge is added if possible (double or single bridge is selected randomly).
+        // Otherwise an island and a bridge is added if possible.
+        // After the loop has added all islands and finishes, the bridge count for each island is used as new target value and then the bridges are deleted.
+        // The result is a randomly generated game with a guaranteed solution.
         public void CreateGame(bool showMissing, int columns = -1, int rows = -1, int count = -1)
         {
             _sharedData.Islands.Clear();
@@ -144,6 +155,11 @@ namespace Bridges.Models
             FieldUpdate();
         }
 
+        // The method loads a .bgs file with a saved game.
+        // Different checks on the file structure and content for a valid game are done before the content is used to create a game.
+        // The file structure is checked with patterns of regular expressions.
+        // If something is wrong a message other than "OK" is returned which describes the problem.
+        // This message is given back to the invoking method in the MainPage and forwarded to the user in a DisplayAlert.
         public async Task<string> LoadGame()
         {
             var stopLoad = (string info) =>
@@ -229,6 +245,7 @@ namespace Bridges.Models
             return "OK";
         }
 
+        // The method saves the current game status in a .bgs file.
         public async Task<bool> SaveGame()
         {
             if (_sharedData.Islands.Count > 0)
@@ -256,25 +273,31 @@ namespace Bridges.Models
             return false;
         }
 
+        // The method helps the user when he doesn't know which next bridge to set in the game.
+        // It adds one further bridge to the game by looping through the islands and checking the following:
+        // Check for bridge possibilities and a potential in each direction of the island. The potential is 1 when a single bridge can be set or 2 two for a double bridge or 0.
+        // On basis of this information three rules are used to check which minimum potential is required to set a bridge securely.
+        // Example: The first rule checks if the total available potential of all directions is equal to the number of bridges that we are missing for our island.
+        // A potential of 1 in a direction is sufficient in that case and the first direction that has this potential will get a bridge. Then the method returns.
         public bool NextBridge()
         {
             if (_sharedData.GameStatus != "Puzzle not solved yet...") return false;
             for (int i = 0; i < _sharedData.Islands.Count; i++)
             {
                 var island = _sharedData.Islands[i];
-                var northBridge = BridgeInfo(i, island.North);
-                var eastBridge = BridgeInfo(i, island.East);
-                var southBridge = BridgeInfo(i, island.South);
-                var westBridge = BridgeInfo(i, island.West);
-                var potential = new Dictionary<string, int>
-                {
-                    { "north", 0 },
-                    { "east", 0 },
-                    { "south", 0 },
-                    { "west", 0 }
-                };
                 if (island.UnderTarget != 0)
                 {
+                    var northBridge = BridgeInfo(i, island.North);
+                    var eastBridge = BridgeInfo(i, island.East);
+                    var southBridge = BridgeInfo(i, island.South);
+                    var westBridge = BridgeInfo(i, island.West);
+                    var potential = new Dictionary<string, int>
+                    {
+                        { "north", 0 },
+                        { "east", 0 },
+                        { "south", 0 },
+                        { "west", 0 }
+                    };
                     if (northBridge.Item2 == "single" && _sharedData.Islands[island.North].UnderTarget > 0) potential["north"] = 1;
                     if (eastBridge.Item2 == "single" && _sharedData.Islands[island.East].UnderTarget > 0) potential["east"] = 1;
                     if (southBridge.Item2 == "single" && _sharedData.Islands[island.South].UnderTarget > 0) potential["south"] = 1;
@@ -305,6 +328,9 @@ namespace Bridges.Models
             return false;
         }
 
+        // The method checks the game status. The puzzle is solved when all islands are connected (in)directly and meet their taget number.
+        // If this is not the case can any (perhaps not helpful) bridge be set? Then the puzzle is not solved yet.
+        // Otherwise there is a game state that can not lead to a solution anymore and a new approach has to be tried.
         public void CheckGameStatus()
         {
             if (_sharedData.Islands.Count > 0)
@@ -319,6 +345,7 @@ namespace Bridges.Models
             }
         }
 
+        // The method resets the game, all bridges are removed.
         public void RemoveAllBridges()
         {
             _sharedData.Bridges.Clear();
@@ -326,6 +353,7 @@ namespace Bridges.Models
             FieldUpdate();
         }
 
+        // The method saves the new neighbors for every island.
         private void FindNeighbours()
         {
             _sharedData.Islands.Sort();
@@ -348,6 +376,8 @@ namespace Bridges.Models
             }
         }
 
+        // The method checks for islands with startIndex and endIndex (in the Islands list) if a bridge could be set or increased.
+        // If a new bridge can be set the corresponding method is called.
         private void AddBridge(int startIndex, int endIndex)
         {
             var bridgeInfo = BridgeInfo(startIndex, endIndex);
@@ -366,6 +396,7 @@ namespace Bridges.Models
             }
         }
 
+        // The method sets a new bridge (single by default).
         private Bridge NewBridge(int startIndex, int endIndex, bool doubleBridge = false)
         {
             var startIndexNew = Math.Min(startIndex, endIndex);
@@ -390,6 +421,7 @@ namespace Bridges.Models
             return bridge;
         }
 
+        // The method removes a bridge or decreases it.
         private void RemoveBridge(int startIndex, int endIndex)
         {
             var bridgeInfo = BridgeInfo(startIndex, endIndex);
@@ -404,6 +436,8 @@ namespace Bridges.Models
             }
         }
 
+        // The method adds a new island. As the Islands list gets newly sorted the indexes of the islands that are used in the Bridge instances change.
+        // So the indexes used in the Bridges that are bigger or equal to the index of the new island have to be incremented.
         private Island NewIsland(int column, int row)
         {
             Island island = new Island(column, row);
@@ -419,6 +453,8 @@ namespace Bridges.Models
             return island;
         }
 
+        // The method returns a bridge information with island indexes as parameter.
+        // The method uses invokes the overload with column and row indexes as parameters.
         private (int, string) BridgeInfo(int startIndex, int endIndex)
         {
             if (startIndex == -1 || endIndex == -1) return (-1, "notOK");
@@ -429,6 +465,10 @@ namespace Bridges.Models
             return BridgeInfo(startColumn, startRow, endColumn, endRow);
         }
 
+        // The method first sorts the input parameters so that the smaller column is the startcolumn.
+        // This is necessary because the Bridge class sorts its content that way and the following checks require this sorting as well.
+        // When a bridge already exists the index and status of that bridge is returned.
+        // When the bridge doesn't exist it is checked whether the bridge does not cross another existing bridge and whether the bridge length is within the limits.
         private (int, string) BridgeInfo(int startColumn, int startRow, int endColumn, int endRow)
         {
             if ((endColumn < startColumn && endRow == startRow) || (endColumn == startColumn && endRow < startRow))
@@ -462,6 +502,8 @@ namespace Bridges.Models
             return (bridgeIndex, "notOK");
         }
 
+        // The method checks if placement of a new island is OK in a square of the field.
+        // There must not be an existing island or bridge on that spot.
         private bool IslandOK(int column, int row)
         {
             var islandIndex = _sharedData.Islands.FindIndex(island => island.Column == column && island.Row == row);
@@ -472,6 +514,7 @@ namespace Bridges.Models
             return true;
         }
 
+        // The method checks if all existing islands are (in)directly connected with breadth first search.
         private bool AllConnected()
         {
             var islandsFound = new List<int>();
@@ -492,6 +535,7 @@ namespace Bridges.Models
             return false;
         }
 
+        // The method checks if all islands meet their target value of bridges.
         private bool AllTargetNumber()
         {
             foreach (var island in _sharedData.Islands)
@@ -501,6 +545,7 @@ namespace Bridges.Models
             return true;
         }
 
+        // The method checks if any further bridge can be set (not necessarily a bridge which will be correct for the solution).
         private bool CanSetAnyBridge()
         {
             for (int index = 0; index < _sharedData.Islands.Count; index++)
@@ -518,17 +563,21 @@ namespace Bridges.Models
             return false;
         }
 
+        // The method triggers a field redraw by invalidating the GraphicsView. Afterwards the game status is checked.
         private void FieldUpdate()
         {
             GraphicsView?.Invalidate();
             CheckGameStatus();
         }
 
+        // The method handles a change of the checkbox to show missing bridges instead of the target number inside the islands.
+        // In this case a redraw with the new setting is initiated.
         private void OnShowMissingChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "ShowMissing") GraphicsView?.Invalidate();
         }
 
+        // The method clears the whole game by deleting the shared data for that game and triggering the FieldUpdate method.
         private void ClearGame()
         {
             _sharedData.Islands.Clear();
